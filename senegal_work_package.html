@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Health Map: Senegal | Interactive Thematic Dashboard</title>
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: gentle formal typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f9fe;
+            color: #1e3a4d;
+            padding: 32px 28px 60px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .dashboard-header {
+            margin-bottom: 36px;
+            border-bottom: 2px solid #dce8ef;
+            padding-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            color: #1a5d7a;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        h1 i {
+            color: #2f855a;
+            font-size: 2.1rem;
+        }
+
+        .subhead {
+            color: #4c6f88;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* Google Translate Toggle Button */
+        .translate-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #dee9f0;
+        }
+        .translate-btn {
+            background: #2f855a;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .translate-btn:hover {
+            background: #236b48;
+            transform: scale(1.02);
+        }
+        .lang-hint {
+            font-size: 0.7rem;
+            color: #54809b;
+        }
+
+        /* Grid of 6 thematic cards */
+        .thematic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 28px;
+            margin-bottom: 45px;
+        }
+
+        /* Card style */
+        .topic-card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0, 25, 40, 0.05);
+            transition: all 0.25s ease;
+            border: 1px solid #e3eef5;
+            overflow: hidden;
+        }
+
+        .topic-card:hover {
+            box-shadow: 0 14px 28px rgba(0, 30, 45, 0.08);
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            padding: 22px 24px 14px 24px;
+            background: #ffffff;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #eef3f8;
+            transition: background 0.2s;
+        }
+
+        .card-header:hover {
+            background: #fafdff;
+        }
+
+        .card-header i {
+            font-size: 2.2rem;
+            width: 48px;
+            color: #2f855a;
+            text-align: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a5d7a;
+            letter-spacing: -0.2px;
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            font-size: 1.3rem;
+            color: #89aec2;
+            transition: transform 0.3s ease;
+        }
+
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.48s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: #fefefc;
+        }
+
+        .card-body.open {
+            max-height: 950px;
+        }
+
+        .inner-content {
+            padding: 20px 26px 26px 26px;
+            border-top: 1px solid #e9f0f5;
+        }
+
+        /* Sub-category styling */
+        .sub-cat {
+            margin-bottom: 22px;
+            border-left: 3px solid #cce2ed;
+            padding-left: 14px;
+        }
+
+        .sub-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1a6b4a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sub-title i {
+            font-size: 1rem;
+            color: #2f855a;
+            width: 24px;
+        }
+
+        .sub-desc {
+            color: #2e5773;
+            font-size: 0.85rem;
+            line-height: 1.45;
+            margin-top: 5px;
+            padding-right: 8px;
+        }
+
+        hr {
+            margin: 18px 0;
+            border: none;
+            border-top: 1px solid #e2ecf2;
+        }
+
+        .info-note {
+            background: #f0f7fb;
+            border-radius: 18px;
+            padding: 12px 16px;
+            margin-top: 18px;
+            font-size: 0.75rem;
+            color: #2c6f8f;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Dashboard interactive section (medical region, districts, custom queries) */
+        .interactive-panel {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid #dee9f0;
+            padding: 22px 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            margin-top: 12px;
+        }
+
+        .panel-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #1a5d7a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .flex-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 22px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #54809b;
+        }
+
+        select, input {
+            border: 1px solid #cbdde8;
+            border-radius: 60px;
+            padding: 10px 18px;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            min-width: 170px;
+            outline: none;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: #2f855a;
+            box-shadow: 0 0 0 2px rgba(47,133,90,0.1);
+        }
+
+        .btn-query {
+            background: #eef2f7;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: #1f5d79;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-query:hover {
+            background: #e0e9f0;
+            color: #0f4b64;
+        }
+
+        .query-result {
+            background: #f6fbfe;
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin-top: 18px;
+            border-left: 5px solid #2f855a;
+            font-size: 0.9rem;
+            color: #1d4e6b;
+            display: none;
+        }
+
+        /* Hide Google Translate top bar iframe style */
+        .goog-te-banner-frame.skiptranslate, .goog-te-gadget-simple {
+            display: none !important;
+        }
+        body {
+            top: 0px !important;
+        }
+
+        @media (max-width: 750px) {
+            body { padding: 20px 16px; }
+            .card-header h3 { font-size: 1.25rem; }
+            .dashboard-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1><i class="fas fa-map-marked-alt"></i> Health Map: Senegal</h1>
+            <div class="subhead"><i class="fas fa-chalkboard-user"></i> <strong>Interactive dashboard. Click any module to reveal sub‑categories with scientific description</strong></div>
+        </div>
+        <div class="translate-wrapper">
+            <i class="fas fa-language" style="color:#2f855a;"></i>
+            <span class="lang-hint">English / Français</span>
+            <button id="googleTranslateBtn" class="translate-btn"><i class="fas fa-globe"></i> Translate to French</button>
+        </div>
+    </div>
+
+    <!-- 6 thematic cards (1 to 6) generated dynamically -->
+    <div class="thematic-grid" id="thematicGrid"></div>
+
+    <!-- interactive dashboard section : medical region, health districts, custom queries, grouping by themes -->
+    <div class="interactive-panel">
+        <div class="panel-title"><i class="fas fa-sliders-h"></i> 6. Interactive dashboard</div>
+        <div class="flex-controls">
+            <div class="control-group">
+                <label><i class="fas fa-map-pin"></i> Medical region</label>
+                <select id="medicalRegionSelect">
+                    <option value="Dakar">Dakar</option>
+                    <option value="Thiès">Thiès</option>
+                    <option value="Saint-Louis">Saint-Louis</option>
+                    <option value="Ziguinchor">Ziguinchor</option>
+                    <option value="Kaolack">Kaolack</option>
+                    <option value="Fatick">Fatick</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-stethoscope"></i> Health district</label>
+                <select id="healthDistrictSelect">
+                    <option value="Guediawaye">Guediawaye</option>
+                    <option value="Pikine">Pikine</option>
+                    <option value="Mbour">Mbour</option>
+                    <option value="Tambacounda">Tambacounda</option>
+                    <option value="Kolda">Kolda</option>
+                    <option value="Kaffrine">Kaffrine</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label><i class="fas fa-tag"></i> Group by theme</label>
+                <select id="themeGroupSelect">
+                    <option value="population">Population & Demographics</option>
+                    <option value="vaccination">Vaccination & Zero-dose</option>
+                    <option value="access">Accessibility & Coverage</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn-query" id="summaryByRegionDistrictBtn"><i class="fas fa-chart-simple"></i> Show summary</button>
+            </div>
+        </div>
+        <div class="flex-controls" style="margin-top: 6px;">
+            <div class="control-group" style="flex: 2;">
+                <label><i class="fas fa-terminal"></i> Customised query</label>
+                <input type="text" id="customQueryInput" placeholder="e.g., DTP3 coverage in Thiès, zero-dose count, accessibility index..." style="width: 100%;">
+            </div>
+            <div>
+                <button class="btn-query" id="runCustomQueryBtn"><i class="fas fa-magnifying-glass"></i> Run query</button>
+            </div>
+        </div>
+        <div id="dynamicQueryOutput" class="query-result"></div>
+    </div>
+    <div class="info-note" style="margin-top: 28px;">
+        <i class="fas fa-lightbulb"></i> Scientific framework: Each thematic module offers structured sub‑categories. Click any card to expand and view specific indicators with relevant icons.
+    </div>
+</div>
+
+<!-- Hidden Google Translate Element - will be used by the API -->
+<div id="google_translate_element" style="display: none;"></div>
+
+<script type="text/javascript">
+    // Function to load Google Translate API and initialize
+    function loadGoogleTranslate() {
+        // Check if already loaded
+        if (document.querySelector('script[src*="translate.google.com/translate_a/element.js"]')) {
+            return;
+        }
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=initGoogleTranslate';
+        document.head.appendChild(script);
+    }
+
+    var translateWidgetReady = false;
+    
+    function initGoogleTranslate() {
+        if (typeof google !== 'undefined' && google.translate) {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,fr',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+            translateWidgetReady = true;
+        }
+    }
+
+    // Function to trigger translation to French
+    function translateToFrench() {
+        // First ensure widget is loaded
+        if (!translateWidgetReady) {
+            // Load API if not ready and try again
+            if (typeof google === 'undefined' || !google.translate) {
+                loadGoogleTranslate();
+                // Wait for it to initialize then translate
+                var checkInterval = setInterval(function() {
+                    if (translateWidgetReady) {
+                        clearInterval(checkInterval);
+                        performFrenchTranslation();
+                    }
+                }, 200);
+                // Timeout after 3 seconds
+                setTimeout(function() {
+                    clearInterval(checkInterval);
+                    if (!translateWidgetReady) {
+                        performFrenchTranslationFallback();
+                    }
+                }, 3000);
+            } else {
+                initGoogleTranslate();
+                setTimeout(performFrenchTranslation, 500);
+            }
+        } else {
+            performFrenchTranslation();
+        }
+    }
+
+    function performFrenchTranslation() {
+        try {
+            var selectFrame = document.querySelector('.goog-te-combo');
+            if (selectFrame) {
+                selectFrame.value = 'fr';
+                selectFrame.dispatchEvent(new Event('change'));
+                updateButtonUI(true);
+            } else {
+                // If combo not found, try alternative approach
+                var gadget = document.querySelector('.goog-te-gadget-simple');
+                if (gadget) {
+                    var trigger = gadget.querySelector('span');
+                    if (trigger) trigger.click();
+                    setTimeout(function() {
+                        var select = document.querySelector('.goog-te-combo');
+                        if (select) {
+                            select.value = 'fr';
+                            select.dispatchEvent(new Event('change'));
+                            updateButtonUI(true);
+                        }
+                    }, 300);
+                } else {
+                    performFrenchTranslationFallback();
+                }
+            }
+        } catch(e) {
+            performFrenchTranslationFallback();
+        }
+    }
+
+    function performFrenchTranslationFallback() {
+        // Direct Google Translate URL approach - opens Google Translate for the page
+        var currentUrl = window.location.href;
+        var translateUrl = 'https://translate.google.com/translate?hl=fr&sl=en&tl=fr&u=' + encodeURIComponent(currentUrl);
+        window.open(translateUrl, '_blank');
+        updateButtonUI(false);
+    }
+
+    function updateButtonUI(success) {
+        var btn = document.getElementById('googleTranslateBtn');
+        if (btn) {
+            if (success) {
+                btn.innerHTML = '<i class="fas fa-check"></i> French';
+                btn.style.background = '#1a5d7a';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="fas fa-globe"></i> Translate to French';
+                    btn.style.background = '#2f855a';
+                }, 2000);
+            } else {
+                btn.innerHTML = '<i class="fas fa-external-link-alt"></i> Open Translate';
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="fas fa-globe"></i> Translate to French';
+                }, 3000);
+            }
+        }
+    }
+
+    // Load translate API on page load
+    window.addEventListener('load', function() {
+        loadGoogleTranslate();
+        // Also set up button click
+        var translateBtn = document.getElementById('googleTranslateBtn');
+        if (translateBtn) {
+            translateBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                translateToFrench();
+            });
+        }
+    });
+</script>
+
+<script>
+    // ------------------------------------------------------------------
+    // Thematic structure: 6 main categories with subcategories (exact points)
+    // Only names, icons and a single scientific descriptive line per subcategory.
+    // No placeholder/example numeric data. Real variable names only.
+    // ------------------------------------------------------------------
+    const themesData = [
+        {
+            id: 1,
+            title: "Population modelling",
+            icon: "fa-users",
+            subcategories: [
+                { name: "Population totals", icon: "fa-chart-simple", description: "Estimation of total population counts and demographic aggregates across administrative units." },
+                { name: "Age and sex breakdown (under 1 – under 5 – female 15 to 49 …)", icon: "fa-venus-mars", description: "Stratification by age groups (under‑1, under‑5) and sex‑specific reproductive‑age cohorts for health planning." }
+            ]
+        },
+        {
+            id: 2,
+            title: "Vaccination modelling",
+            icon: "fa-syringe",
+            subcategories: [
+                { name: "Percentage of coverage for DTP1 – DTP3", icon: "fa-percent", description: "Proportion of children receiving DTP1, DTP2 and DTP3 doses and MCV1 vaccine across health units." },
+                { name: "Drop-out rate for DTP1 - DTP3 vaccine", icon: "fa-chart-line", description: "Proportion of children who initiate DTP1 but fail to complete DTP3." },
+                { name: "Probability of attaining 80%", icon: "fa-chart-gantt", description: "Modelled likelihood that vaccination coverage reaches the 80% population immunity threshold within a given timeframe." }
+            ]
+        },
+        {
+            id: 3,
+            title: "Estimating unvaccinated children",
+            icon: "fa-ban",
+            subcategories: [
+                { name: "Count of under vaccinated", icon: "fa-shield-halved", description: "Estimated number of children with incomplete vaccination schedules (missing at least one essential dose)." },
+                { name: "Count of unvaccinated", icon: "fa-exclamation-triangle", description: "Total zero‑dose children who have not received any routine immunisation, representing highest vulnerability." }
+            ]
+        },
+        {
+            id: 4,
+            title: "Accessibility to healthcare services",
+            icon: "fa-hospital-user",
+            subcategories: [
+                { name: "Location of health facilities", icon: "fa-map-marker-alt", description: "Geographic coordinates and spatial distribution of hospitals, health posts and primary care clinics." },
+                { name: "Isochrones of travel time (15 – 20 – 25 - … 45 minutes)", icon: "fa-clock", description: "Travel time contours representing accessibility thresholds from residential areas to nearest health facility." },
+                { name: "Accessibility index", icon: "fa-chart-line", description: "Composite index integrating travel time, road network, and facility density to quantify service accessibility." }
+            ]
+        },
+        {
+            id: 5,
+            title: "Health and demographic profiles",
+            icon: "fa-heartbeat",
+            subcategories: [
+                { name: "Isochrones of travel time (15 – 20 – 25 - … 45 minutes)", icon: "fa-route", description: "Isochrone bands used to measure geographical accessibility and catchment areas for health programming." },
+                { name: "Population within each isochrone", icon: "fa-people-group", description: "Cumulative population counts residing inside each travel time boundary, informing resource allocation." },
+                { name: "Sociodemographic characteristics", icon: "fa-chart-pie", description: "Key demographic structure indicators capture the composition and characteristics of a population. These include median age, dependency ratio, proportion of women of childbearing age, and the shares of children, adolescents, adults, and older people. Together with literacy rate, they reflect age structure, dependency burden, reproductive potential, and overall educational attainment." },
+                { name: "Socioeconomic characteristics (access to basic services, poverty levels)", icon: "fa-hand-holding-usd", description: "Household‑level indicators measuring water, sanitation, electricity access, and multidimensional poverty indices." }
+            ]
+        },
+        {
+            id: 6,
+            title: "Interactive dashboard",
+            icon: "fa-table-cells-large",
+            subcategories: [
+                { name: "Summaries by medical region", icon: "fa-chart-column", description: "Aggregated health and demographic indicators presented per administrative medical region." },
+                { name: "Summaries by health districts", icon: "fa-district", description: "Disaggregated district‑level summaries for granular analysis and local planning." },
+                { name: "Grouping by themes", icon: "fa-layer-group", description: "Dynamic clustering of indicators around population, vaccination, access, or demographic domains." },
+                { name: "Customised queries", icon: "fa-message", description: "Customised queries display targeted health data outputs by enabling users to select specific variables and locations for precise analysis." }
+            ]
+        }
+    ];
+
+    // Helper: create interactive cards with click to roll-down (subcategories)
+    function buildThematicCards() {
+        const grid = document.getElementById('thematicGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        themesData.forEach(theme => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+
+            // Header section
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'card-header';
+            headerDiv.setAttribute('data-theme-id', theme.id);
+            headerDiv.innerHTML = `
+                <i class="fas ${theme.icon}"></i>
+                <h3>${theme.id}. ${theme.title}</h3>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            `;
+
+            // Body (collapsible)
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'card-body';
+            let subHtml = `<div class="inner-content">`;
+
+            // Loop subcategories for this theme
+            theme.subcategories.forEach(sub => {
+                subHtml += `
+                    <div class="sub-cat">
+                        <div class="sub-title">
+                            <i class="fas ${sub.icon}"></i>
+                            <span>${sub.name}</span>
+                        </div>
+                        <div class="sub-desc"><i class="fas fa-info-circle" style="font-size:0.7rem;"></i> ${sub.description}</div>
+                    </div>
+                `;
+            });
+            subHtml += `<div class="info-note"><i class="fas fa-chart-line"></i> Scientific reference: sub‑categories reflect core health system strengthening indicators for Senegal.</div>`;
+            subHtml += `</div>`;
+            bodyDiv.innerHTML = subHtml;
+
+            card.appendChild(headerDiv);
+            card.appendChild(bodyDiv);
+            grid.appendChild(card);
+        });
+
+        // attach expand/collapse events
+        attachToggleEvents();
+    }
+
+    function attachToggleEvents() {
+        const headers = document.querySelectorAll('.topic-card .card-header');
+        headers.forEach(header => {
+            header.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const cardBody = header.parentElement.querySelector('.card-body');
+                const toggleIcon = header.querySelector('.toggle-icon');
+                if (cardBody.classList.contains('open')) {
+                    cardBody.classList.remove('open');
+                    if (toggleIcon) toggleIcon.style.transform = 'rotate(0deg)';
+                } else {
+                    cardBody.classList.add('open');
+                    if (toggleIcon) toggleIcon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+    }
+
+    function getRegionSummary(region) {
+        return `📋 Medical region summary for ${region}: Based on routine health information system, indicators include population totals, vaccination coverage trends, zero‑dose burden, facility accessibility isochrones, and sociodemographic profiles. This summary aggregates data across districts for strategic oversight.`;
+    }
+
+    function getDistrictSummary(district) {
+        return `🏥 Health district summary for ${district}: Local level data on DTP1‑3 coverage, dropout rates, undervaccinated counts, travel time isochrones, poverty levels, and women of childbearing age. District summaries support microplanning and targeted interventions.`;
+    }
+
+    function getGroupingByTheme(themeGroup) {
+        if (themeGroup === 'population') {
+            return `📊 Grouping by theme: Population & Demographics → Includes population totals, age/sex breakdown (under‑1, under‑5, female 15‑49), sociodemographic characteristics (median age, dependency ratio, literacy rate), and population within isochrones.`;
+        } else if (themeGroup === 'vaccination') {
+            return `💉 Grouping by theme: Vaccination & Zero‑dose → Encompasses DTP1/DTP3 coverage percentages, dropout rate, probability of attaining 80% coverage, counts of undervaccinated and unvaccinated children.`;
+        } else if (themeGroup === 'access') {
+            return `🚑 Grouping by theme: Accessibility & Coverage → Includes location of health facilities, isochrones (15‑45 min), accessibility index, population within each isochrone, and socioeconomic characteristics (access to basic services, poverty levels).`;
+        }
+        return `Group by theme: select Population, Vaccination or Accessibility domain to cluster related indicators.`;
+    }
+
+    function customQueryProcessing(queryText) {
+        if (!queryText.trim()) {
+            return `📌 Please enter a custom query (e.g., "population totals in Kaolack", "DTP3 dropout rate", "zero‑dose estimates by district"). The system will retrieve conceptual indicators relevant to Senegal's health mapping framework.`;
+        }
+        const lowerQuery = queryText.toLowerCase();
+        if (lowerQuery.includes('population totals') || lowerQuery.includes('total population')) {
+            return `🔎 Custom query result: "Population totals" — refers to the estimated de facto population of Senegal disaggregated by region and district. Used for denominator calculation in vaccination coverage and health metrics.`;
+        } else if (lowerQuery.includes('age and sex') || lowerQuery.includes('under 1') || lowerQuery.includes('female 15')) {
+            return `👥 Custom query: Age and sex breakdown (under‑1, under‑5, female 15‑49) — essential for maternal and child health programming, fertility estimates, and immunisation target setting.`;
+        } else if (lowerQuery.includes('dtp') || lowerQuery.includes('coverage') && lowerQuery.includes('dtp1') || lowerQuery.includes('dtp3')) {
+            return `💉 Vaccination modelling: DTP1‑3 coverage percentages, dropout rates, and probability of attaining 80% immunity threshold. These indicators measure routine immunisation system performance.`;
+        } else if (lowerQuery.includes('dropout') || lowerQuery.includes('drop-out')) {
+            return `📉 Drop‑out rate (DTP1 to DTP3): reflects continuity of care and loss‑to‑follow‑up between first and third vaccine doses, critical for strengthening health services.`;
+        } else if (lowerQuery.includes('zero-dose') || lowerQuery.includes('unvaccinated') || lowerQuery.includes('under vaccinated')) {
+            return `⚠️ Zero‑dose estimates: Count of unvaccinated (no routine immunisation) and under‑vaccinated (missing doses) children. Key equity indicators for reaching marginalised populations.`;
+        } else if (lowerQuery.includes('isochrone') || lowerQuery.includes('travel time')) {
+            return `⏱️ Isochrones of travel time (15,20,25...45 minutes) measure geographic accessibility to primary care. Population within each isochrone guides health facility planning.`;
+        } else if (lowerQuery.includes('accessibility index')) {
+            return `📍 Accessibility index: composite measure combining road networks, travel time, and health facility distribution. Values indicate relative service availability across regions.`;
+        } else if (lowerQuery.includes('sociodemographic') || lowerQuery.includes('median age') || lowerQuery.includes('dependency ratio')) {
+            return `📈 Sociodemographic characteristics include median age, dependency ratio, women of childbearing age, % children, adolescents, adults, elderly, and literacy rate — describing population structure and demand for services.`;
+        } else if (lowerQuery.includes('socioeconomic') || lowerQuery.includes('poverty') || lowerQuery.includes('basic services')) {
+            return `🏠 Socioeconomic characteristics: access to basic services (water, sanitation, electricity) and multidimensional poverty levels — key social determinants of health.`;
+        } else if (lowerQuery.includes('medical region')) {
+            return `🏛️ Summaries by medical region aggregate health and demographic profiles at regional administrative level, enabling comparative performance assessment.`;
+        } else if (lowerQuery.includes('health district')) {
+            return `🗺️ Summaries by health district provide finer resolution for immunisation campaigns, zero‑dose mapping, and resource allocation.`;
+        } else {
+            return `📚 Custom query received: "${queryText}". The dashboard can provide structured information on any of the six themes: Population modelling, Vaccination modelling, Zero‑dose estimates, Accessibility, Demographic profiles, or Interactive summaries. Refine your query for specific sub‑indicators.`;
+        }
+    }
+
+    function setupInteractiveEvents() {
+        const summaryBtn = document.getElementById('summaryByRegionDistrictBtn');
+        const regionSelect = document.getElementById('medicalRegionSelect');
+        const districtSelect = document.getElementById('healthDistrictSelect');
+        const themeGroupSelect = document.getElementById('themeGroupSelect');
+        const customQueryBtn = document.getElementById('runCustomQueryBtn');
+        const customInput = document.getElementById('customQueryInput');
+        const outputDiv = document.getElementById('dynamicQueryOutput');
+
+        function showOutput(message) {
+            outputDiv.style.display = 'block';
+            outputDiv.innerHTML = `<i class="fas fa-chart-line"></i> ${message}`;
+        }
+
+        summaryBtn.addEventListener('click', () => {
+            const region = regionSelect.value;
+            const district = districtSelect.value;
+            const themeGroup = themeGroupSelect.value;
+            let combined = `${getRegionSummary(region)}<br><br>${getDistrictSummary(district)}<br><br>📁 <strong>Grouping by theme:</strong> ${getGroupingByTheme(themeGroup)}`;
+            showOutput(combined);
+        });
+
+        customQueryBtn.addEventListener('click', () => {
+            const rawQuery = customInput.value.trim();
+            const resultText = customQueryProcessing(rawQuery);
+            showOutput(`<i class="fas fa-message"></i> <strong>Customised query response:</strong><br>${resultText}`);
+        });
+
+        themeGroupSelect.addEventListener('change', () => {
+            const group = themeGroupSelect.value;
+            const preview = getGroupingByTheme(group);
+            showOutput(`🔍 <strong>Theme grouping preview:</strong> ${preview}<br><small>Use "Show summary" for full region/district contextualisation.</small>`);
+        });
+    }
+
+    function openFirstCardByDefault() {
+        setTimeout(() => {
+            const firstCardBody = document.querySelector('.topic-card .card-body');
+            const firstIcon = document.querySelector('.topic-card .card-header .toggle-icon');
+            if (firstCardBody && !firstCardBody.classList.contains('open')) {
+                firstCardBody.classList.add('open');
+                if (firstIcon) firstIcon.style.transform = 'rotate(180deg)';
+            }
+        }, 150);
+    }
+
+    buildThematicCards();
+    setupInteractiveEvents();
+    openFirstCardByDefault();
+</script>
+</body>
+</html>
